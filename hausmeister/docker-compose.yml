@@ -1,0 +1,60 @@
+services:
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: hausmeister
+      DOCKER_INFLUXDB_INIT_BUCKET: sensors
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
+
+  telegraf:
+    image: telegraf:1.32
+    container_name: telegraf
+    restart: unless-stopped
+    depends_on:
+      - influxdb
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    environment:
+      MQTT_USERNAME: ${MQTT_USERNAME}
+      MQTT_PASSWORD: ${MQTT_PASSWORD}
+      INFLUXDB_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
+
+  telegram-bot:
+    build: ./telegram-bot
+    container_name: telegram-bot
+    restart: unless-stopped
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+
+  engine:
+    build: ./engine
+    container_name: hausmeister-engine
+    restart: unless-stopped
+    environment:
+      MQTT_HOST: "192.168.1.30"
+      MQTT_USERNAME: ${MQTT_USERNAME}
+      MQTT_PASSWORD: ${MQTT_PASSWORD}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      OLLAMA_URL: "http://192.168.1.7:11434"
+      OLLAMA_MODEL: "llama3.2:3b"
+      DOOR_OPEN_THRESHOLD_MIN: "30"
+      HEATING_STALE_THRESHOLD_MIN: "30"
+      BATTERY_DIGEST_HOUR: "8"
+      FROST_THRESHOLD_C: "10"
+      OVERHEAT_THRESHOLD_C: "40"
+
+volumes:
+  influxdb-data:
+  influxdb-config:

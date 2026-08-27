@@ -1,0 +1,609 @@
+<title>Geräte-Umbenennung — KI-Hausmeister</title>
+<style>
+  :root {
+    --paper: #eef1ef;
+    --paper-raised: #f7f9f7;
+    --ink: #16232c;
+    --ink-soft: #47565f;
+    --ink-faint: #7c8b92;
+    --line: #ccd6d2;
+    --line-soft: #dde4e1;
+    --accent: #a8672e;
+    --accent-soft: #f0e2d3;
+    --accent-ink: #6e4013;
+    --amber: #9c6b06;
+    --amber-bg: #fbf1dc;
+    --amber-line: #e3c583;
+    --rust: #a13d2d;
+    --rust-bg: #fbe9e4;
+    --rust-line: #e3a795;
+    --mono-tint: rgba(22, 35, 44, 0.05);
+    --shadow: 0 1px 2px rgba(22, 35, 44, 0.06), 0 4px 14px rgba(22, 35, 44, 0.05);
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #12181c;
+    --paper-raised: #182027;
+    --ink: #e7edf0;
+    --ink-soft: #a9b7bd;
+    --ink-faint: #718088;
+    --line: #2b363c;
+    --line-soft: #232d33;
+    --accent: #d68c4f;
+    --accent-soft: #2c2318;
+    --accent-ink: #eec897;
+    --amber: #d9ab52;
+    --amber-bg: #2a2311;
+    --amber-line: #4f4020;
+    --rust: #e08268;
+    --rust-bg: #2c1a15;
+    --rust-line: #5c2e22;
+    --mono-tint: rgba(255, 255, 255, 0.05);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12181c;
+      --paper-raised: #182027;
+      --ink: #e7edf0;
+      --ink-soft: #a9b7bd;
+      --ink-faint: #718088;
+      --line: #2b363c;
+      --line-soft: #232d33;
+      --accent: #d68c4f;
+      --accent-soft: #2c2318;
+      --accent-ink: #eec897;
+      --amber: #d9ab52;
+      --amber-bg: #2a2311;
+      --amber-line: #4f4020;
+      --rust: #e08268;
+      --rust-bg: #2c1a15;
+      --rust-line: #5c2e22;
+      --mono-tint: rgba(255, 255, 255, 0.05);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 20px 96px;
+  }
+
+  h1, h2, h3 { text-wrap: balance; }
+
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  header.page {
+    padding: 40px 0 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  header.page h1 {
+    font-family: "Charter", "Georgia", serif;
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 38px);
+    margin: 6px 0 10px;
+    letter-spacing: -0.01em;
+  }
+
+  header.page p.sub {
+    color: var(--ink-soft);
+    font-size: 15.5px;
+    max-width: 62ch;
+    line-height: 1.55;
+    margin: 0 0 22px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    background: var(--paper-raised);
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    min-width: 108px;
+  }
+
+  .stat .n {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .stat .l {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  .stat.progress .n { color: var(--accent); }
+
+  /* controls */
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--paper);
+    padding: 14px 0;
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .controls input[type="search"] {
+    flex: 1 1 200px;
+    min-width: 140px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  .controls input[type="search"]:focus-visible,
+  .chip:focus-visible,
+  input[type="checkbox"]:focus-visible,
+  details summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .chip {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .chip[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  /* sections */
+  section.floor {
+    margin-top: 30px;
+  }
+
+  .floor-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .floor-head h2 {
+    font-family: "Charter", "Georgia", serif;
+    font-size: 21px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .floor-head .count {
+    font-family: ui-monospace, monospace;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+
+  table.devices {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper-raised);
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  table.devices th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  table.devices td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 14.5px;
+    vertical-align: top;
+  }
+
+  table.devices tr:last-child td { border-bottom: none; }
+
+  table.devices tr.done td { color: var(--ink-faint); }
+  table.devices tr.done .old-name,
+  table.devices tr.done .new-name { text-decoration: line-through; text-decoration-color: var(--line); }
+
+  td.check { width: 34px; padding-right: 0; }
+  td.check input { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; }
+
+  .old-name { color: var(--ink-soft); }
+  .arrow { color: var(--ink-faint); padding: 0 6px; }
+  .new-name { font-weight: 600; }
+  .eid {
+    display: block;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+
+  .note {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+
+  /* flagged */
+  section.flags {
+    margin-top: 34px;
+  }
+
+  section.flags h2 {
+    font-family: "Charter", "Georgia", serif;
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+
+  section.flags > p {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin: 0 0 16px;
+  }
+
+  .flag-card {
+    background: var(--amber-bg);
+    border: 1px solid var(--amber-line);
+    border-left: 4px solid var(--amber);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+
+  .flag-card.conflict {
+    background: var(--rust-bg);
+    border-color: var(--rust-line);
+    border-left-color: var(--rust);
+  }
+
+  .flag-card h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .flag-card p {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .flag-card code {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    background: var(--mono-tint);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12.5px;
+  }
+
+  /* skip section */
+  details.skip {
+    margin-top: 30px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    padding: 4px 16px;
+  }
+
+  details.skip summary {
+    padding: 12px 0;
+    font-weight: 600;
+    font-size: 14.5px;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+
+  details.skip .skip-list {
+    columns: 2;
+    column-gap: 24px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    padding-bottom: 16px;
+    line-height: 1.9;
+  }
+
+  @media (max-width: 560px) {
+    details.skip .skip-list { columns: 1; }
+    table.devices { font-size: 13px; }
+    .eyebrow { font-size: 11px; }
+  }
+
+  .table-wrap { overflow-x: auto; }
+
+  footer.page {
+    margin-top: 48px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .flag-card, table.devices tr { transition: background-color 0.15s ease; }
+  }
+</style>
+
+<header class="page">
+  <div class="eyebrow">KI-Hausmeister · Home Assistant</div>
+  <h1>Geräte-Umbenennung</h1>
+  <p class="sub">
+    Vorschlag alt → neu nach dem Schema <strong>Etage · Raum · Gerätetyp</strong>
+    (<code>EG</code> Erdgeschoss, <code>1OG</code>, <code>DG</code> Dachgeschoss, Keller).
+    Umbenennen erben die zugehörigen Entitäten (Batterie, Kontakt, Temperatur …) automatisch vom Gerätenamen —
+    du musst nur das Gerät selbst umbenennen, nicht jede Entität einzeln.
+  </p>
+  <div class="stat-row">
+    <div class="stat progress"><div class="n" id="stat-done">0/0</div><div class="l">Erledigt</div></div>
+    <div class="stat"><div class="n" id="stat-total">–</div><div class="l">Geräte gesamt</div></div>
+    <div class="stat"><div class="n" id="stat-flags">0</div><div class="l">Brauchen Entscheidung</div></div>
+  </div>
+</header>
+
+<div class="controls">
+  <input type="search" id="search" placeholder="Filtern, z. B. „Rauchmelder“ oder „achims“ …" autocomplete="off" />
+  <button class="chip" data-floor="all" aria-pressed="true">Alle</button>
+  <button class="chip" data-floor="eg">EG</button>
+  <button class="chip" data-floor="1og">1OG</button>
+  <button class="chip" data-floor="dg">DG</button>
+  <button class="chip" data-floor="keller">Keller</button>
+  <button class="chip" data-floor="aussen">Außen</button>
+</div>
+
+<section class="flags">
+  <h2>Alles geklärt</h2>
+  <p>
+    Keine offenen Punkte mehr. Die "Deaktiviert"-Anzeige in Zigbee2MQTT betrifft vermutlich nur die
+    Verfügbarkeits-Überwachung, nicht den Betrieb der Geräte selbst — unbedenklich für die Umbenennung.
+  </p>
+</section>
+
+<main id="floors"></main>
+
+<details class="skip">
+  <summary>Nicht anfassen — System, Automationen, Infrastruktur (20)</summary>
+  <div class="skip-list" id="skip-list"></div>
+</details>
+
+<footer class="page">
+  Stand aus InfluxDB/MQTT-Statestream-Daten der letzten 24 h. Sub-Entitäten sind hier nicht einzeln aufgeführt —
+  sie folgen dem Gerätenamen automatisch.
+</footer>
+
+<script>
+  const DATA = {
+    eg: {
+      label: "EG · Erdgeschoss",
+      devices: [
+        { eid: "eg_haustur_sensor", old: "EG_Haustür_Sensor", neu: "EG Haustür Türsensor" },
+        { eid: "eg_wohnungstur_sensor", old: "EG Wohnungstür Sensor", neu: "EG Wohnungstür Türsensor" },
+        { eid: "eg_feuermelder_kueche", old: "EG_Feuermelder_Kueche", neu: "EG Küche Rauchmelder" },
+        { eid: "eg_temperatur_flur", old: "EG_Temperatur_Flur", neu: "EG Flur Temperatursensor" },
+        { eid: "eg_sonoff_switch", old: "EG_Sonoff-Switch", neu: "EG Bad Steckdose 1" },
+      ],
+    },
+    "1og": {
+      label: "1OG · 1. Obergeschoss",
+      devices: [
+        { eid: "1og_wohnungstuersensor", old: "1OG WohnungstuerSensor", neu: "1OG Wohnungstür Türsensor" },
+        { eid: "1og_bad_sonoffswitch", old: "1OG-Bad-SonoffSwitch", neu: "1OG Bad Steckdose" },
+        { eid: "1og_badtemperatursensor", old: "1OG-BadTemperatursensor", neu: "1OG Bad Temperatursensor" },
+        { eid: "1og_feuermelder_kueche", old: "1OG_Feuermelder_Küche", neu: "1OG Küche Rauchmelder" },
+        { eid: "1og_temperatur_flur", old: "1OG_Temperatur_Flur", neu: "1OG Flur Temperatursensor" },
+      ],
+    },
+    dg: {
+      label: "DG · Dachgeschoss",
+      devices: [
+        { eid: "dachachimsbueroheizkoerperventil", old: "DachAchimsBueroHeizkoerperVentil", neu: "DG Achims Büro Heizkörperventil" },
+        { eid: "dachachimsbuerolichtrelais", old: "DachAchimsBueroLichtRelais", neu: "DG Achims Büro Lichtrelais" },
+        { eid: "dachachimsbuerolichttaster", old: "DachAchimsBueroLichtTaster", neu: "DG Achims Büro Lichttaster" },
+        { eid: "dachachimsbueropowerswitch1", old: "DachAchimsBueroPowerSwitch1", neu: "DG Achims Büro Steckdose 1" },
+        { eid: "dg_achimsbuerofenstersensor", old: "DG-AchimsBueroFensterSensor", neu: "DG Achims Büro Fenstersensor" },
+        { eid: "dg_feuermelder_achims_buero", old: "DG_Feuermelder_Achims_Buero", neu: "DG Achims Büro Rauchmelder" },
+        { eid: "dachachimsschlafzimmerfenstersensor", old: "DachAchimsSchlafzimmerFensterSensor", neu: "DG Achims Schlafzimmer Fenstersensor" },
+        { eid: "dachachimsschlafzimmerheizkoerperventil", old: "DachAchimsSchlafzimmerHeizkoerperVentil", neu: "DG Achims Schlafzimmer Heizkörperventil" },
+        { eid: "dachachimsschlafzimmerleuchte1", old: "DachAchimsSchlafzimmerLeuchte1", neu: "DG Achims Schlafzimmer Leuchte 1" },
+        { eid: "dachachimsschlafzimmerleuchte2", old: "DachAchimsSchlafzimmerLeuchte2", neu: "DG Achims Schlafzimmer Leuchte 2" },
+        { eid: "dachachimsschlafzimmerleuchte3", old: "DachAchimsSchlafzimmerLeuchte3", neu: "DG Achims Schlafzimmer Leuchte 3" },
+        { eid: "dachachimsschlafzimmerlichtschalter", old: "DachAchimsSchlafzimmerLichtschalter", neu: "DG Achims Schlafzimmer Lichtschalter" },
+        { eid: "dachachimsschlafzimmernachttischlampe", old: "DachAchimsSchlafzimmerNachttischLampe", neu: "DG Achims Schlafzimmer Nachttischlampe" },
+        { eid: "achimsschlafzimmerschaltertuer", old: "AchimsSchlafzimmerSchalterTuer", neu: "DG Achims Schlafzimmer Türschalter" },
+        { eid: "dachflurleuchte1", old: "DachFlurLeuchte1", neu: "DG Flur Leuchte 1" },
+        { eid: "dachflurleuchte2", old: "DachFlurLeuchte2", neu: "DG Flur Leuchte 2" },
+        { eid: "dachflurleuchte3", old: "DachFlurLeuchte3", neu: "DG Flur Leuchte 3" },
+        { eid: "dachflurlichtschalter", old: "DachFlurLichtschalter", neu: "DG Flur Lichtschalter" },
+        { eid: "dg_wohnungstur_sensor", old: "DG Wohnungstür Sensor", neu: "DG Wohnungstür Türsensor" },
+        { eid: "dachkuechefenstersensor", old: "DachKuecheFensterSensor", neu: "DG Küche Fenstersensor" },
+        { eid: "dachschlafzimmerfenstersensor", old: "DachSchlafzimmerFensterSensor", neu: "DG Schlafzimmer Fenstersensor" },
+        { eid: "dachschlafzimmerpowerswitch1", old: "DachSchlafzimmerPowerSwitch1", neu: "DG Schlafzimmer Steckdose 1" },
+        { eid: "dach_schlafzimmer_licht", old: "Dach Schlafzimmer Licht", neu: "DG Schlafzimmer Licht" },
+        { eid: "dachtemperatur", old: "DachTemperatur", neu: "DG Flur Temperatursensor" },
+        { eid: "dachwohnzimmerfenstersensor", old: "DachWohnzimmerFensterSensor", neu: "DG Wohnzimmer Fenstersensor" },
+        { eid: "dg_wohnzimmerfeuermelder", old: "DG_WohnzimmerFeuermelder", neu: "DG Wohnzimmer Rauchmelder" },
+        { eid: "dachwohnzimmerleuchte2", old: "DachWohnzimmerLeuchte2", neu: "DG Wohnzimmer Leuchte 2" },
+        { eid: "dachwohnzimmerleuchte3", old: "DachWohnzimmerLeuchte3", neu: "DG Wohnzimmer Leuchte 3" },
+        { eid: "dg_wohnzimmerleuchte1", old: "DG-WohnzimmerLeuchte1", neu: "DG Wohnzimmer Leuchte 1" },
+        { eid: "dachwohnzimmerlichtschalter", old: "DachWohnzimmerLichtschalter", neu: "DG Wohnzimmer Lichtschalter" },
+        { eid: "wohnzimmerpowerswitch1", old: "WohnzimmerPowerSwitch1", neu: "DG Wohnzimmer Steckdose 1" },
+      ],
+    },
+    keller: {
+      label: "Keller",
+      devices: [
+        { eid: "keller_sonoff_switch1", old: "Keller_Sonoff-Switch1", neu: "Keller Steckdose 1" },
+        { eid: "smartnetz_gasreader_gasreader", old: "Smartnetz Gasreader", neu: "Keller Gasreader", note: "Duplikat-Gruppe smartnetz-5079-c85e dabei löschen (siehe Hinweis oben)" },
+        { eid: "gas_counter", old: "gas_counter", neu: "Keller Gaszähler" },
+      ],
+    },
+    aussen: {
+      label: "Außen",
+      devices: [
+        { eid: "aussentempertur_ostseite", old: "Aussentempertur-Ostseite", neu: "Außen Ost Temperatursensor" },
+      ],
+    },
+  };
+
+  const SKIP = [
+    "sun_next_dawn/dusk/midnight/noon/rising", "zigbee2mqtt_bridge_* (5)", "backup_* (5)",
+    "file", "forecast_home", "jwillner (Person)", "mqtt_kipc (unser eigener Client)",
+    "python_demo_device_python_counter", "home_assistant_burgsteinfurt_tuerenprotokoll",
+    "test_tur_protokollieren (Automation)", "tur_und_fensterprotokoll_taglich_per_e_mail (Automation)",
+    "leuchte_wohnzimmer_ausschalten (Automation)", "lichtschalter_flur_ausschalten (Automation)",
+    "lichtschalter_wohnzimmer (Automation)", "lichtschalter_buro (Name/ID uneinheitlich, vermutlich Automation)",
+    "test_temp_sensor (mein Testsensor von eben, ignorieren)",
+    "switch_erdgeschoss (auf Wunsch weggelassen)", "hue_dimmer_schlafzimmer (existiert laut Rückmeldung nicht mehr)",
+    "dachwohnzimmerfeuermelder (verwaiste Karteileiche — löschen, echter Sensor ist dg_wohnzimmerfeuermelder)",
+    "smartnetz_gasreader_smartnetz_5079_c85e_* (Duplikat-Gruppe des Gaszählers — löschen)",
+    "1_og_wohnungstuersensor (verwaiste Karteileiche mit Punkt — löschen, echter Sensor ist 1og_wohnungstuersensor)",
+    "dg_temperatur_flur (existiert nicht in Zigbee2MQTT — vermutlich Karteileiche, echter Sensor ist dachtemperatur/DG Flur Temperatursensor)",
+    "1og_badtemperatursensor / dach_schlafzimmer_licht (existieren nicht in Zigbee2MQTT — noch ungeklärt, siehe Rückfrage)",
+  ];
+
+  const STORAGE_KEY = "hausmeister-rename-progress";
+  const done = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+
+  function saveProgress() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...done]));
+    updateStats();
+  }
+
+  function updateStats() {
+    const all = document.querySelectorAll("table.devices tr[data-eid]");
+    document.getElementById("stat-done").textContent = `${done.size}/${all.length}`;
+    document.getElementById("stat-total").textContent = all.length;
+  }
+
+  function renderFloor(key, floor) {
+    const section = document.createElement("section");
+    section.className = "floor";
+    section.dataset.floor = key;
+
+    const head = document.createElement("div");
+    head.className = "floor-head";
+    head.innerHTML = `<h2>${floor.label}</h2><span class="count">${floor.devices.length} Geräte</span>`;
+    section.appendChild(head);
+
+    const wrap = document.createElement("div");
+    wrap.className = "table-wrap";
+    const table = document.createElement("table");
+    table.className = "devices";
+    table.innerHTML = `
+      <thead><tr>
+        <th></th><th>Aktueller Name</th><th></th><th>Neuer Name</th>
+      </tr></thead>
+      <tbody></tbody>
+    `;
+    const tbody = table.querySelector("tbody");
+
+    floor.devices.forEach((d) => {
+      const tr = document.createElement("tr");
+      tr.dataset.eid = d.eid;
+      tr.dataset.search = (d.old + " " + d.neu + " " + d.eid).toLowerCase();
+      if (done.has(d.eid)) tr.classList.add("done");
+      tr.innerHTML = `
+        <td class="check"><input type="checkbox" ${done.has(d.eid) ? "checked" : ""} aria-label="Erledigt: ${d.neu}" /></td>
+        <td class="old-name">${d.old}<span class="eid">${d.eid}</span></td>
+        <td class="arrow">→</td>
+        <td class="new-name">${d.neu}${d.note ? `<div class="note">${d.note}</div>` : ""}</td>
+      `;
+      const checkbox = tr.querySelector("input");
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) { done.add(d.eid); tr.classList.add("done"); }
+        else { done.delete(d.eid); tr.classList.remove("done"); }
+        saveProgress();
+      });
+      tbody.appendChild(tr);
+    });
+
+    wrap.appendChild(table);
+    section.appendChild(wrap);
+    return section;
+  }
+
+  const floorsEl = document.getElementById("floors");
+  Object.entries(DATA).forEach(([key, floor]) => floorsEl.appendChild(renderFloor(key, floor)));
+
+  document.getElementById("skip-list").innerHTML = SKIP.map((s) => `<div>${s}</div>`).join("");
+
+  updateStats();
+
+  // search filter
+  const searchInput = document.getElementById("search");
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.trim().toLowerCase();
+    document.querySelectorAll("table.devices tr[data-eid]").forEach((tr) => {
+      tr.style.display = !q || tr.dataset.search.includes(q) ? "" : "none";
+    });
+    document.querySelectorAll("section.floor").forEach((sec) => {
+      const visible = [...sec.querySelectorAll("tbody tr")].some((tr) => tr.style.display !== "none");
+      sec.style.display = visible ? "" : "none";
+    });
+  });
+
+  // floor filter chips
+  document.querySelectorAll(".chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+      chip.setAttribute("aria-pressed", "true");
+      const floor = chip.dataset.floor;
+      document.querySelectorAll("section.floor").forEach((sec) => {
+        sec.style.display = floor === "all" || sec.dataset.floor === floor ? "" : "none";
+      });
+    });
+  });
+</script>

@@ -1,0 +1,41 @@
+EG_Haustür_Sensor	EG Haustür Türsensor
+EG Wohnungstür Sensor	EG Wohnungstür Türsensor
+EG_Feuermelder_Kueche	EG Küche Rauchmelder
+EG_Temperatur_Flur	EG Flur Temperatursensor
+1OG WohnungstuerSensor	1OG Wohnungstür Türsensor
+1OG-Bad-SonoffSwitch	1OG Bad Steckdose
+1OG-BadTemperatursensor	1OG Bad Temperatursensor
+1OG_Feuermelder_Küche	1OG Küche Rauchmelder
+1OG_Temperatur_Flur	1OG Flur Temperatursensor
+DachAchimsBueroHeizkoerperVentil	DG Achims Büro Heizkörperventil
+DachAchimsBueroLichtRelais	DG Achims Büro Lichtrelais
+DachAchimsBueroLichtTaster	DG Achims Büro Lichttaster
+DachAchimsBueroPowerSwitch1	DG Achims Büro Steckdose 1
+DG-AchimsBueroFensterSensor	DG Achims Büro Fenstersensor
+DG_Feuermelder_Achims_Buero	DG Achims Büro Rauchmelder
+DachAchimsSchlafzimmerFensterSensor	DG Achims Schlafzimmer Fenstersensor
+DachAchimsSchlafzimmerHeizkoerperVentil	DG Achims Schlafzimmer Heizkörperventil
+DachAchimsSchlafzimmerLeuchte1	DG Achims Schlafzimmer Leuchte 1
+DachAchimsSchlafzimmerLeuchte2	DG Achims Schlafzimmer Leuchte 2
+DachAchimsSchlafzimmerLeuchte3	DG Achims Schlafzimmer Leuchte 3
+DachAchimsSchlafzimmerLichtschalter	DG Achims Schlafzimmer Lichtschalter
+DachAchimsSchlafzimmerNachttischLampe	DG Achims Schlafzimmer Nachttischlampe
+DachFlurLeuchte1	DG Flur Leuchte 1
+DachFlurLeuchte2	DG Flur Leuchte 2
+DachFlurLeuchte3	DG Flur Leuchte 3
+DachFlurLichtschalter	DG Flur Lichtschalter
+DG_Temperatur_Flur	DG Flur Temperatursensor
+DG Wohnungstür Sensor	DG Wohnungstür Türsensor
+DachKuecheFensterSensor	DG Küche Fenstersensor
+DachSchlafzimmerFensterSensor	DG Schlafzimmer Fenstersensor
+DachSchlafzimmerPowerSwitch1	DG Schlafzimmer Steckdose 1
+Dach Schlafzimmer Licht	DG Schlafzimmer Licht
+DachTemperatur	DG Flur Temperatursensor
+DachWohnzimmerFensterSensor	DG Wohnzimmer Fenstersensor
+DG_WohnzimmerFeuermelder	DG Wohnzimmer Rauchmelder
+DachWohnzimmerLeuchte2	DG Wohnzimmer Leuchte 2
+DachWohnzimmerLeuchte3	DG Wohnzimmer Leuchte 3
+DG-WohnzimmerLeuchte1	DG Wohnzimmer Leuchte 1
+DachWohnzimmerLichtschalter	DG Wohnzimmer Lichtschalter
+WohnzimmerPowerSwitch1	DG Wohnzimmer Steckdose 1
+Keller_Sonoff-Switch1	Keller Steckdose 1
